@@ -6,6 +6,10 @@
 #include <cgicc/HTMLClasses.h>
 #include <cgicc/Cgicc.h>
 #include <cgicc/CgiEnvironment.h>
+//Includes for hashing function
+#include <openssl/evp.h>
+#include <iomanip>
+#include <sstream>
 
 
 using namespace cgicc;
@@ -26,7 +30,29 @@ void listUsers(shared_ptr<sql::Statement> &stmnt) {
   }
 
 }
+//HASHING function
+/**The function below takes a password as a string and returns
+the output (hashed with SHA-256
+This function was created by refactoring a program found online 
+demonstrating hashing with OPENSSL using C
+More details provided in [REF 3] in report**/
+string hashPw(const string& password) {
+    EVP_MD_CTX* context = EVP_MD_CTX_create();
+    EVP_DigestInit(context, EVP_sha256());
+    EVP_DigestUpdate(context, password.c_str(), password.size());
 
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int hash_length = 0;
+    EVP_DigestFinal(context, hash, &hash_length);
+    EVP_MD_CTX_free(context);
+
+    // Convert hash bytes to readable hex string
+    stringstream output_hash;
+    for (unsigned int i = 0; i < hash_length; i++) {
+        output_hash << hex << setw(2) << setfill('0') << (int)hash[i];
+    }
+    return output_hash.str();
+}
 
 int main(int argc, char **argv) {
     cout << HTTPHTMLHeader() << endl;
@@ -104,6 +130,9 @@ int main(int argc, char **argv) {
   ///List users
     cout << hr();
     listUsers(stmnt);
+
+    //TEST for HASH Function
+    cout << hashPw("testing12345") << endl;
 
     cout << body() << html() << endl;
     return 0;
