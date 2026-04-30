@@ -7,17 +7,13 @@
 #include <cgicc/Cgicc.h>
 #include <cgicc/CgiEnvironment.h>
 #include "helperfunctions.h"
-
+#include <cgicc/HTTPRedirectHeader.h> //to handle redirects
 using namespace cgicc;
 using namespace std;
 
 
 int main(int argc, char **argv) {
-    cout << HTTPHTMLHeader() << endl;
-    cout << html() << endl;
-    cout << head() << title("Sign in") << head() << endl;
-    cout << body() << endl;
-    cout << h1("Sign in") << endl;
+
 
     Cgicc cgi;
 
@@ -26,35 +22,49 @@ int main(int argc, char **argv) {
     shared_ptr<sql::Statement> stmnt(conn->createStatement());
 
 
-   
-    cgicc::form_iterator f_input_username = cgi.getElement("username"); // REF [2]
-    cgicc::form_iterator f_input_password = cgi.getElement("password");
-    
-
     const CgiEnvironment& env = cgi.getEnvironment();
     string method = env.getRequestMethod();
 
     if (method == "POST") {
-        //dereferencing to declear usable variables in c++
-    string username = **f_input_username;
-    string password = **f_input_password;
-    password = hashPw(password); // hash the passowrd
+      cgicc::form_iterator f_input_username = cgi.getElement("username"); // REF [2]
+      cgicc::form_iterator f_input_password = cgi.getElement("password");
+      //dereferencing to declear usable variables in c++
+      string username = **f_input_username;
+      string password = **f_input_password;
+      password = hashPw(password); // hash the passowrd
     
     
-    try {
-      //Confirm if username & passowrd correct
-    } catch (sql::SQLException &e) {
-      cout <<"DB error: " << e.what() << endl;
-    }
+      try {
+        //Confirm if username & passowrd correct
+        shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
+          "SELECT username, role FROM users where username = ? AND password_hash = ?"
+        ));
+        pstmt->setString(1, username);
+        pstmt->setString(2, password);
+        unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+          cout << HTTPRedirectHeader("dashboard.cgi") << endl;
+        }
+        else {
+          cout << p("Incorrect pass or username") << endl;
+        }
+      } catch (sql::SQLException &e) {
+        cout <<"DB error: " << e.what() << endl;
+      }
 
 
     }
     
-    
+    cout << HTTPHTMLHeader() << endl;
+    cout << html() << endl;
+    cout << head() << title("Sign in") << head() << endl;
+    cout << body() << endl;
+    cout << h1("Sign in") << endl;    
     
 
 
-    //CREATE_USER FORM
+    //LOGIN FORM
     cout << "<form method='POST'>" << endl;
     cout << "Username: <input type='text' name='username'><br><br>" << endl;
     cout << "Password: <input type='password' name='password'><br><br>" << endl;

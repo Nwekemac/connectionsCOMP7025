@@ -18,11 +18,12 @@ int main(int argc, char **argv) {
     cout << head() << title("User Dashboard") << head() << endl;
     cout << body() << endl;
     cout << h1("User Dashboard") << endl;
-
+    
     cout << p("Welcome, Username") << endl; 
     cout << p("Your username is: ") << endl; 
     cout << p("Your email is: ") << endl; 
     cout << p("Your account type: ") << endl; 
+   
 
 
     Cgicc cgi;
