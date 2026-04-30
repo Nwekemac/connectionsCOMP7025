@@ -6,19 +6,13 @@
 #include <cgicc/HTMLClasses.h>
 #include <cgicc/Cgicc.h>
 #include <cgicc/CgiEnvironment.h>
-//Includes for hashing function
-#include <openssl/evp.h>
-#include <iomanip>
-#include <sstream>
-
+#include "helperfunctions.h"
 
 using namespace cgicc;
 using namespace std;
 
 void listUsers(shared_ptr<sql::Statement> &stmnt) {
   try {
-    //shared_ptr<sql::Statement> select_stmt(conn->createStatement());
-    //unique_ptr<sql::ResultSet> res(select_stmt->executeQuery("SELECT username, role FROM users"));
     unique_ptr<sql::ResultSet> res(stmnt->executeQuery("SELECT username, role FROM users"));
     while (res->next()) {
             cout << "<p>Username :";
@@ -30,29 +24,7 @@ void listUsers(shared_ptr<sql::Statement> &stmnt) {
   }
 
 }
-//HASHING function
-/**The function below takes a password as a string and returns
-the output (hashed with SHA-256
-This function was created by refactoring a program found online 
-demonstrating hashing with OPENSSL using C
-More details provided in [REF 3] in report**/
-string hashPw(const string& password) {
-    EVP_MD_CTX* context = EVP_MD_CTX_create();
-    EVP_DigestInit(context, EVP_sha256());
-    EVP_DigestUpdate(context, password.c_str(), password.size());
 
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int hash_length = 0;
-    EVP_DigestFinal(context, hash, &hash_length);
-    EVP_MD_CTX_free(context);
-
-    // Convert hash bytes to readable hex string
-    stringstream output_hash;
-    for (unsigned int i = 0; i < hash_length; i++) {
-        output_hash << hex << setw(2) << setfill('0') << (int)hash[i];
-    }
-    return output_hash.str();
-}
 
 int main(int argc, char **argv) {
     cout << HTTPHTMLHeader() << endl;
@@ -63,14 +35,8 @@ int main(int argc, char **argv) {
 
     Cgicc cgi;
 
-    //DB_CONNECTION
-    sql::Driver* driver = sql::mariadb::get_driver_instance();
-    sql::SQLString url("jdbc:mariadb://localhost:3306/comp7025"); 
-    sql::Properties  properties({
-        {"user", "db_user"},
-        {"password", "db_user_password"}
-    });
-    unique_ptr<sql::Connection> conn(driver->connect(url, properties));
+
+    unique_ptr<sql::Connection> conn = connectDb(); //initiate DB connection by using the connectDB() function created in helperfunctions.h
     shared_ptr<sql::Statement> stmnt(conn->createStatement());
 
 
