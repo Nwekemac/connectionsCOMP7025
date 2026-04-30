@@ -15,7 +15,7 @@ void listUsers(shared_ptr<sql::Statement> &stmnt) {
   try {
     unique_ptr<sql::ResultSet> res(stmnt->executeQuery("SELECT username, role FROM users"));
     while (res->next()) {
-            cout << "<p>Username :";
+            cout << "<p>Username: ";
             cout <<  res->getString("username") << " >> ";
             cout <<  res->getString("role") << "</p>" << endl;
         }
@@ -29,9 +29,9 @@ void listUsers(shared_ptr<sql::Statement> &stmnt) {
 int main(int argc, char **argv) {
     cout << HTTPHTMLHeader() << endl;
     cout << html() << endl;
-    cout << head() << title("Admin Console") << head() << endl;
+    cout << head() << title("Sign Up") << head() << endl;
     cout << body() << endl;
-    cout << h1("Admin Console") << endl;
+    cout << h1("Sign Up") << endl;
 
     Cgicc cgi;
 
@@ -87,24 +87,12 @@ int main(int argc, char **argv) {
     cout << "Password: <input type='password' name='password'><br><br>" << endl;
     cout << "Role: <select name='role'>" << endl;
     cout << "<option value='client'>Client</option>" << endl;
-    cout << "<option value='provider'>Provider</option>" << endl;
-    cout << "<option value='admin'>Admin</option>" << endl;
+    cout << "<option value='provider'>Provider</option>" << endl;  
     cout << "</select><br><br>" << endl;
-    cout << "<input type='submit' value='Create User'>" << endl;
+    cout << "<input type='submit' value='Sign Up'>" << endl;
     cout << "</form>" << endl;
-
-
-  ///List users
-    cout << hr();
-    listUsers(stmnt);
-
-    //TEST for HASH Function
-    cout << hashPw("testing123") << endl;
 
     cout << body() << html() << endl;
     return 0;
 }
-
-
-
 

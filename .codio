@@ -1,0 +1,25 @@
+{
+    // This file is used to configure the two buttons along Codio's top menu.
+    
+    // Run button configuration
+    "commands": {
+        "Latest Compile Command": 
+        "g++ -o {{filename_no_ext}}.cgi {{filename}} -lcgicc -lmariadbcpp -lssl -lcrypto && sudo cp {{filename_no_ext}}.cgi /usr/lib/cgi-bin/ && sudo chmod 755 /usr/lib/cgi-bin/{{filename_no_ext}}.cgi && sudo chown www-data /usr/lib/cgi-bin/{{filename_no_ext}}.cgi",
+        "Compile & Deploy": 
+        "g++ -o {{filename_no_ext}}.cgi {{filename}} -lcgicc -lmariadbcpp && sudo cp {{filename_no_ext}}.cgi /usr/lib/cgi-bin/ && sudo chmod 755 /usr/lib/cgi-bin/{{filename_no_ext}}.cgi && sudo chown www-data /usr/lib/cgi-bin/{{filename_no_ext}}.cgi",
+        "Compile & Run (non-web)": "g++ -o {{filename_no_ext}}.cgi {{filename}} -lcgicc -lmariadbcpp && ./{{filename_no_ext}}.cgi",
+        "Compile": "g++ -o {{filename_no_ext}}.cgi {{filename}} -lcgicc -lmariadbcpp",
+        "Run (non-web)": "./{{filename_no_ext}}.cgi",
+        "Deploy": "sudo cp {{filename_no_ext}}.cgi /usr/lib/cgi-bin/ && sudo chmod 755 /usr/lib/cgi-bin/{{filename_no_ext}}.cgi && sudo chown www-data /usr/lib/cgi-bin/{{filename_no_ext}}.cgi",
+        "Restart Apache": "sudo systemctl restart apache2"
+    },
+    // Preview button configuration
+    "preview": {
+        "Current File (dynamic)": "https://{{domain80}}/cgi-bin/{{filename_no_ext}}.cgi",
+        "Project Index (static)": "https://{{domain}}/{{index}}",
+        "Current File (static)": "https://{{domain}}/{{filepath}}",
+        "Box URL": "http://{{domain3000}}/",
+        "Box URL SSL": "https://{{domain3000}}/"
+    }
+
+}
