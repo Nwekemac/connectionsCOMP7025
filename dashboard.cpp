@@ -15,9 +15,15 @@ using namespace std;
 int main(int argc, char **argv) {
     cout << HTTPHTMLHeader() << endl;
     cout << html() << endl;
-    cout << head() << title("Sign Up") << head() << endl;
+    cout << head() << title("User Dashboard") << head() << endl;
     cout << body() << endl;
-    cout << h1("Sign Up") << endl;
+    cout << h1("User Dashboard") << endl;
+
+    cout << p("Welcome, Username") << endl; 
+    cout << p("Your username is: ") << endl; 
+    cout << p("Your email is: ") << endl; 
+    cout << p("Your account type: ") << endl; 
+
 
     Cgicc cgi;
 
@@ -37,27 +43,27 @@ int main(int argc, char **argv) {
 
     if (method == "POST") {
         //dereferencing to declear usable variables in c++
-    string username = **f_input_username;
-    string email = **f_input_email;
-    string password = **f_input_password;
-    string role = **f_input_role;
-    password = hashPw(password); // hash the passowrd
-    
-    
-    try {
-      //Prepared Statement to take ADD user to database;
-      shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement (
-        "INSERT into users (username, role, email, password_hash) VALUES (?, ?, ?, ?)"
-      )
-      );
-      pstmt->setString(1, username);
-      pstmt->setString(2, role);
-      pstmt->setString(3, email);
-      pstmt->setString(4, password);
-      pstmt->executeUpdate();
-    } catch (sql::SQLException &e) {
-      cout <<"DB error: " << e.what() << endl;
-    }
+      string username = **f_input_username;
+      string email = **f_input_email;
+      string password = **f_input_password;
+      string role = **f_input_role;
+      password = hashPw(password); // hash the passowrd
+      
+      
+      try {
+        //Prepared Statement to take ADD user to database;
+        shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement (
+          "INSERT into users (username, role, email, password_hash) VALUES (?, ?, ?, ?)"
+        )
+        );
+        pstmt->setString(1, username);
+        pstmt->setString(2, role);
+        pstmt->setString(3, email);
+        pstmt->setString(4, password);
+        pstmt->executeUpdate();
+      } catch (sql::SQLException &e) {
+        cout <<"DB error: " << e.what() << endl;
+      }
 
 
     }
@@ -65,7 +71,7 @@ int main(int argc, char **argv) {
     
     
 
-
+    /**** *
     //CREATE_USER FORM
     cout << "<form method='POST'>" << endl;
     cout << "Username: <input type='text' name='username'><br><br>" << endl;
@@ -77,7 +83,7 @@ int main(int argc, char **argv) {
     cout << "</select><br><br>" << endl;
     cout << "<input type='submit' value='Sign Up'>" << endl;
     cout << "</form>" << endl;
-
+    */
     cout << body() << html() << endl;
     return 0;
 }
