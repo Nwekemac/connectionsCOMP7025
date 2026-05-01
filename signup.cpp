@@ -13,59 +13,73 @@ using namespace std;
 
 
 int main(int argc, char **argv) {
-    cout << HTTPHTMLHeader() << endl;
-    cout << html() << endl;
-    cout << head() << title("Sign Up") << head() << endl;
-    cout << body() << endl;
-    cout << h1("Sign Up") << endl;
-
     Cgicc cgi;
 
 
     unique_ptr<sql::Connection> conn = connectDb(); //initiate DB connection by using the connectDB() function created in helperfunctions.h
     shared_ptr<sql::Statement> stmnt(conn->createStatement());
 
-
-   
-    cgicc::form_iterator f_input_username = cgi.getElement("username"); // REF [2]
-    cgicc::form_iterator f_input_email = cgi.getElement("email");
-    cgicc::form_iterator f_input_password = cgi.getElement("password");
-    cgicc::form_iterator f_input_role = cgi.getElement("role");
-
     const CgiEnvironment& env = cgi.getEnvironment();
     string method = env.getRequestMethod();
 
+    bool signup_is_successful = false; // Created this boolean variable to track if sign up is successful
+    string error_message = "";
+
     if (method == "POST") {
-        //dereferencing to declear usable variables in c++
-    string username = **f_input_username;
-    string email = **f_input_email;
-    string password = **f_input_password;
-    string role = **f_input_role;
-    password = hashPw(password); // hash the passowrd
+        
+      cgicc::form_iterator f_input_username = cgi.getElement("username"); // REF [2]
+      cgicc::form_iterator f_input_email = cgi.getElement("email");
+      cgicc::form_iterator f_input_password = cgi.getElement("password");
+      cgicc::form_iterator f_input_role = cgi.getElement("role");
+      //dereferencing to declear usable variables in c++
+      string username = **f_input_username;
+      string email = **f_input_email;
+      string password = **f_input_password;
+      string role = **f_input_role;
+      password = hashPw(password); // hash the passowrd
+      
+      if (!isValidUsername(username)) {
+        error_message = "Invalid Username: only alphanumeric 3-20 chars allowed";
+      } else {
     
-    
-    try {
-      //Prepared Statement to take ADD user to database;
-      shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement (
-        "INSERT into users (username, role, email, password_hash) VALUES (?, ?, ?, ?)"
-      )
-      );
-      pstmt->setString(1, username);
-      pstmt->setString(2, role);
-      pstmt->setString(3, email);
-      pstmt->setString(4, password);
-      pstmt->executeUpdate();
-    } catch (sql::SQLException &e) {
-      cout <<"DB error: " << e.what() << endl;
+        try {
+          //Prepared Statement to take ADD user to database;
+          shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement (
+            "INSERT into users (username, role, email, password_hash) VALUES (?, ?, ?, ?)"
+          )
+          );
+          pstmt->setString(1, username);
+          pstmt->setString(2, role);
+          pstmt->setString(3, email);
+          pstmt->setString(4, password);
+          pstmt->executeUpdate();
+          signup_is_successful = true;
+
+        } catch (sql::SQLException &e) {
+          cout <<"DB error: " << e.what() << endl;
+        }
+      }
+
+
+    } else {
+      //error_message = "error!";
     }
-
-
+    
+  
+    
+    cout << HTTPHTMLHeader() << endl;
+    cout << html() << endl;
+    cout << head() << title("Sign Up") << head() << endl;
+    cout << body() << endl;
+    cout << h1("Sign Up") << endl;    
+    
+    if (error_message != "") {
+      cout << p(error_message) << endl;
     }
-    
-    
-    
-
-
+ 
+    if (signup_is_successful==true) {
+      cout << p("Sign up successful!") << "<a href='login.cgi'> Click Here to Log in </a>" << endl;
+    } else {
     //CREATE_USER FORM
     cout << "<form method='POST'>" << endl;
     cout << "Username: <input type='text' name='username'><br><br>" << endl;
@@ -77,6 +91,8 @@ int main(int argc, char **argv) {
     cout << "</select><br><br>" << endl;
     cout << "<input type='submit' value='Sign Up'>" << endl;
     cout << "</form>" << endl;
+    }
+
 
     cout << body() << html() << endl;
     return 0;

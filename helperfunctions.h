@@ -7,6 +7,9 @@
 #include <openssl/evp.h>
 #include <mariadb/conncpp.hpp>
 
+#include <cctype>
+#include <regex> 
+
 using namespace std;
 
 
@@ -42,5 +45,36 @@ string hashPw(const string& password) {
     }
     return output_hash.str();
 }
+
+/******* Sanitisation and Input Validation Functions ***/
+//The following function sanitises inputs
+string sanitiseInput(const string& input) {
+  string output;
+  for (char c: input) {
+
+    // if else staments to sanitise the input by escaping special characters that
+    // can be used in a XSS attack
+    if (c == '&') output += "&amp;";
+    else if (c == '<')  output += "&lt;";
+    else if (c == '>')  output += "&gt;";
+    else if (c == '"')  output += "&quot;";
+    else if (c == '\'') output += "&#39;";
+    else output += c;
+  }
+  return output;
+}
+
+
+bool isValidUsername(const string& username){
+  if (username.length() < 3  || username.length() > 20 ) { //check length
+    return false;
+  }
+  for (char c: username) {
+    if (!isalnum(c)) {
+      return false;
+    }
+  }
+  return true;
+} 
 
 #endif

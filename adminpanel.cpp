@@ -15,9 +15,13 @@ void listUsers(shared_ptr<sql::Statement> &stmnt) {
   try {
     unique_ptr<sql::ResultSet> res(stmnt->executeQuery("SELECT username, role FROM users"));
     while (res->next()) {
-            cout << "<p>Username :";
-            cout <<  res->getString("username") << " >> ";
-            cout <<  res->getString("role") << "</p>" << endl;
+            string sanitised_username = res->getString("username").c_str();
+            string sanitised_role = res->getString("role").c_str();
+            cout << "<p>Username-: ";
+            cout <<  sanitised_username << " >> Role: ";
+            cout <<  sanitised_role << "</p>" << endl;
+            //cout <<  sanitiseInput(res->getString("username")) << " >> Role: ";
+            //cout <<  sanitiseInput(res->getString("role")) << "</p>" << endl;
         }
   } catch (sql::SQLException &e) {
     cout <<"DB error: " << e.what() << endl;
@@ -57,20 +61,24 @@ int main(int argc, char **argv) {
     string role = **f_input_role;
     password = hashPw(password); // hash the passowrd
     
-    
-    try {
-      //Prepared Statement to take ADD user to database;
-      shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement (
-        "INSERT into users (username, role, email, password_hash) VALUES (?, ?, ?, ?)"
-      )
-      );
-      pstmt->setString(1, username);
-      pstmt->setString(2, role);
-      pstmt->setString(3, email);
-      pstmt->setString(4, password);
-      pstmt->executeUpdate();
-    } catch (sql::SQLException &e) {
-      cout <<"DB error: " << e.what() << endl;
+      if (!isValidUsername(username)) {
+        cout << p("Invalid Username. Username should contain only letters and numbers and be 3 to 20 characters long") << endl;
+      } else {
+        try {
+        //Prepared Statement to take ADD user to database;
+        shared_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement (
+          "INSERT into users (username, role, email, password_hash) VALUES (?, ?, ?, ?)"
+        )
+        );
+        pstmt->setString(1, username);
+        pstmt->setString(2, role);
+        pstmt->setString(3, email);
+        pstmt->setString(4, password);
+        pstmt->executeUpdate();
+        } catch (sql::SQLException &e) {
+        cout <<"DB error: " << e.what() << endl;
+        }
+
     }
 
 
@@ -93,7 +101,9 @@ int main(int argc, char **argv) {
     cout << "<input type='submit' value='Create User'>" << endl;
     cout << "</form>" << endl;
 
-
+  // Test for sanitiseInput
+    cout << sanitiseInput("AZ$$<test>") << endl;
+    
   ///List users
     cout << hr();
     listUsers(stmnt);
